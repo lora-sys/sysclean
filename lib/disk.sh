@@ -1,29 +1,26 @@
 # disk.sh - disk space scanner + cleanup manager
 
 scan_home_topdirs() {
-  du -sh /home/lora/* 2>/dev/null | sort -hr | head -30 | \
-    awk '{printf "%s|%s|topdir\n", $2, $1}'
+  du -sh /home/lora/* 2>/dev/null | sort -hr | head -30 | awk '{printf "%s|%s|topdir\n", $2, $1}' || true
 }
 
 scan_caches() {
-  du -sh "$HOME/.cache"/* 2>/dev/null | sort -hr | head -20 || true | \
-    while read -r size path; do
-      echo "$path|$size|cache"
-    done
+  # Use process substitution to avoid the pipeline issue with du returning non-zero
+  while read -r size path; do
+    echo "$path|$size|cache"
+  done < <(du -sh "$HOME/.cache"/* 2>/dev/null | sort -hr | head -20)
 }
 
 scan_localshare() {
-  du -sh "$HOME/.local/share"/* 2>/dev/null | sort -hr | head -20 || true | \
-    while read -r size path; do
-      echo "$path|$size|localshare"
-    done
+  while read -r size path; do
+    echo "$path|$size|localshare"
+  done < <(du -sh "$HOME/.local/share"/* 2>/dev/null | sort -hr | head -20)
 }
 
 scan_configdirs() {
-  du -sh "$HOME/.config"/* 2>/dev/null | sort -hr | head -20 || true | \
-    while read -r size path; do
-      echo "$path|$size|config"
-    done
+  while read -r size path; do
+    echo "$path|$size|config"
+  done < <(du -sh "$HOME/.config"/* 2>/dev/null | sort -hr | head -20)
 }
 
 scan_build_artifacts() {
@@ -79,7 +76,7 @@ scan_pkg_caches() {
       [ -d "$p" ] && echo "$p|$s|yay-pkg"
     done
   fi
-  [ -d "$HOME/.cache/pip" ] && du -sh "$HOME/.cache/pip" 2>/dev/null | while read -r s p; do echo "$p|$s|pip"; done
+  [ -d "$HOME/.cache/pip" ] && du -sh "$HOME/.cache/pip" 2>/dev/null | { while read -r s p; do echo "$p|$s|pip"; done; } || true
   [ -d "$HOME/.npm" ] && du -sh "$HOME/.npm" 2>/dev/null | while read -r s p; do echo "$p|$s|npm"; done
   [ -d "$HOME/.cache/yarn" ] && du -sh "$HOME/.cache/yarn" 2>/dev/null | while read -r s p; do echo "$p|$s|yarn"; done
   [ -d "$HOME/.local/share/pnpm" ] && du -sh "$HOME/.local/share/pnpm" 2>/dev/null | while read -r s p; do echo "$p|$s|pnpm"; done
