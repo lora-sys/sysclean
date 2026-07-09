@@ -16,7 +16,8 @@ else
 fi
 SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 
-# Search for lib in order of preference
+# Search for lib in order of preference - must have ALL required files
+REQUIRED_LIBS="common.sh ui.sh services.sh docker.sh flatpak.sh disk.sh startup.sh"
 SYSCLEAN_LIB=""
 for candidate in \
     "$HOME/.local/share/sysclean/lib" \
@@ -25,7 +26,13 @@ for candidate in \
     "$SCRIPT_DIR/../share/sysclean/lib" \
     "$SCRIPT_DIR/lib" \
     "$(dirname "$SCRIPT_PATH")/../lib"; do
-  if [ -d "$candidate" ] && [ -f "$candidate/common.sh" ]; then
+  if [ ! -d "$candidate" ]; then continue; fi
+  # Check that ALL required libs exist (avoid partial installs)
+  all_ok=1
+  for lib in $REQUIRED_LIBS; do
+    [ ! -f "$candidate/$lib" ] && { all_ok=0; break; }
+  done
+  if [ "$all_ok" = "1" ]; then
     SYSCLEAN_LIB="$candidate"
     break
   fi
