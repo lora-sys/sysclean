@@ -27,3 +27,4 @@ Thumbs.db
 # Logs (keep config in repo, ignore generated)
 *.log.*
 !*.log
+build/
