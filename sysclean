@@ -159,8 +159,12 @@ do_scan() {
   echo ""
   
   echo "─── 8. 回收站 ───"
-  du -sh "$HOME/.local/share/Trash"
-  ls -1 "$HOME/.local/share/Trash/files" 2>/dev/null | head -10 | sed 's/^/  • /'
+  if [ -d "$HOME/.local/share/Trash" ]; then
+    du -sh "$HOME/.local/share/Trash" 2>/dev/null || true
+    ls -1 "$HOME/.local/share/Trash/files" 2>/dev/null | head -10 | sed 's/^/  • /' || true
+  else
+    echo "  (no trash directory)"
+  fi
   echo ""
   
   echo "─── 9. 日志占用 ───"
