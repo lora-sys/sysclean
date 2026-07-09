@@ -6,21 +6,21 @@ scan_home_topdirs() {
 }
 
 scan_caches() {
-  du -sh "$HOME/.cache"/* 2>/dev/null | sort -hr | head -20 | \
+  du -sh "$HOME/.cache"/* 2>/dev/null | sort -hr | head -20 || true | \
     while read -r size path; do
       echo "$path|$size|cache"
     done
 }
 
 scan_localshare() {
-  du -sh "$HOME/.local/share"/* 2>/dev/null | sort -hr | head -20 | \
+  du -sh "$HOME/.local/share"/* 2>/dev/null | sort -hr | head -20 || true | \
     while read -r size path; do
       echo "$path|$size|localshare"
     done
 }
 
 scan_configdirs() {
-  du -sh "$HOME/.config"/* 2>/dev/null | sort -hr | head -20 | \
+  du -sh "$HOME/.config"/* 2>/dev/null | sort -hr | head -20 || true | \
     while read -r size path; do
       echo "$path|$size|config"
     done
