@@ -1,0 +1,19 @@
+pkgbase = sysclean
+	pkgdesc = Global system cleanup and management TUI for Linux (services, Docker, Flatpak, disk, startup audit)
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/lora-sys/sysclean
+	arch = any
+	license = MIT
+	makedepends = 
+	depends = bash
+	depends = whiptail
+	depends = systemd
+	depends = jq
+	optdepends = docker: Docker container management
+	optdepends = flatpak: Flatpak app management
+	optdepends = sudo: system-level operations
+	source = sysclean-0.1.0.tar.gz::https://github.com/lora-sys/sysclean/archive/refs/tags/v0.1.0.tar.gz
+	sha256sums = SKIP
+
+pkgname = sysclean

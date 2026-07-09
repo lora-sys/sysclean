@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editors
+.vscode/
+.idea/
+*.iml
+*.swp
+
+# Test artifacts
+/tmp/sysclean.test/
+*.test.log
+.coverage
+.pytest_cache/
+
+# Build artifacts
+*.tar.gz
+*.zip
+*.pkg.tar*
+*.deb
+*.rpm
+
+# Logs (keep config in repo, ignore generated)
+*.log.*
+!*.log

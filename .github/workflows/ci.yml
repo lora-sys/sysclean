@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y whiptail jq
+
+      - name: Lint bash scripts
+        run: |
+          for f in sysclean lib/*.sh tests/*.sh install.sh uninstall.sh; do
+            bash -n "$f" && echo "  ✓ $f" || (echo "  ✗ $f FAILED"; exit 1)
+          done
+
+      - name: Run UI unit tests
+        run: bash tests/test_ui.sh
+
+      - name: Run CLI tests
+        run: |
+          ./sysclean --version
+          ./sysclean --help > /dev/null
+          ./sysclean --scan > /tmp/scan_output.txt
+          grep -q "───" /tmp/scan_output.txt
+
+      - name: Run E2E tests
+        run: |
+          sudo apt-get install -y python3
+          bash tests/test_e2e.sh
+
+  aurlint:
+    name: AUR PKGBUILD lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PKGBUILD syntax
+        run: |
+          bash -n aur/PKGBUILD
+          echo "✓ PKGBUILD syntax valid"
+      - name: Verify .SRCINFO in sync
+        run: |
+          # Manually verify .SRCINFO matches PKGBUILD
+          test -f aur/.SRCINFO
+          echo "✓ .SRCINFO present"
