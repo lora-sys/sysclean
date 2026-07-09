@@ -49,10 +49,7 @@ for f in common ui services docker flatpak disk startup; do
   if [ -f "$SYSCLEAN_LIB/$f.sh" ]; then
     source "$SYSCLEAN_LIB/$f.sh"
   else
-    echo "ERROR: missing $f.sh (looking in: $SYSCLEAN_LIB)" >&2
-    echo "  Script location: $SCRIPT_DIR" >&2
-    echo "  HOME: $HOME" >&2
-    ls -la "$SYSCLEAN_LIB/" 2>/dev/null | head -10 >&2
+    echo "ERROR: missing $f.sh (in: $SYSCLEAN_LIB)" >&2
     exit 1
   fi
 done

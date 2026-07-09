@@ -5,7 +5,7 @@ set -o pipefail
 
 # === Paths ===
 SYSCLEAN_HOME="${SYSCLEAN_HOME:-$HOME/.local/share/sysclean}"
-SYSCLEAN_LIB="$SYSCLEAN_HOME/lib"
+# SYSCLEAN_LIB is set by the main sysclean script before sourcing this file
 SYSCLEAN_CONFIG="${SYSCLEAN_CONFIG:-$HOME/.config/sysclean}"
 SYSCLEAN_STATE="$SYSCLEAN_CONFIG/state.json"
 SYSCLEAN_HISTORY="$SYSCLEAN_CONFIG/history.log"
