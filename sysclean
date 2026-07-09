@@ -149,7 +149,10 @@ do_scan() {
   echo ""
   
   echo "─── 6. 顶级磁盘占用 (top 15) ───"
-  du -sh /home/lora/* 2>/dev/null | sort -hr | head -15 | awk '{printf "  %-10s %s\n", $1, $2}'
+  # Make user-agnostic: use $HOME instead of hardcoded /home/lora
+  if [ -d "$HOME" ]; then
+    du -sh "$HOME"/* 2>/dev/null | sort -hr | head -15 | awk '{printf "  %-10s %s\n", $1, $2}' || true
+  fi
   echo ""
   
   echo "─── 7. 缓存大小 ───"

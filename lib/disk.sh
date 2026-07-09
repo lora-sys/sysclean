@@ -1,7 +1,7 @@
 # disk.sh - disk space scanner + cleanup manager
 
 scan_home_topdirs() {
-  du -sh /home/lora/* 2>/dev/null | sort -hr | head -30 | awk '{printf "%s|%s|topdir\n", $2, $1}' || true
+  du -sh "$HOME"/* 2>/dev/null | sort -hr | head -30 | awk '{printf "%s|%s|topdir\n", $2, $1}' || true
 }
 
 scan_caches() {
@@ -24,7 +24,14 @@ scan_configdirs() {
 }
 
 scan_build_artifacts() {
-  local repos_root="/home/lora/repos"
+  # Try user's repos dir, fall back to common locations
+  if [ -d "$HOME/repos" ]; then
+    local repos_root="$HOME/repos"
+  elif [ -d "/home/lora/repos" ]; then
+    local repos_root="/home/lora/repos"
+  else
+    local repos_root=""
+  fi
   [ -d "$repos_root" ] || return
 
   # Look for venv directories but exclude node_modules subtrees
@@ -119,7 +126,7 @@ scan_tmp() {
 }
 
 scan_large_files() {
-  find /home/lora -maxdepth 4 -type f -size +100M 2>/dev/null | \
+  find "$HOME" -maxdepth 4 -type f -size +100M 2>/dev/null | \
     while read -r f; do
       sz=$(du -sh "$f" 2>/dev/null | cut -f1)
       echo "$f|$sz|largefile"
