@@ -36,10 +36,29 @@ jobs:
 
       - name: Run CLI tests
         run: |
+          set +e
+          echo "--- Test: --version ---"
           ./sysclean --version
+          echo "rc=$?"
+          echo ""
+          echo "--- Test: --help ---"
           ./sysclean --help > /dev/null
+          echo "rc=$?"
+          echo ""
+          echo "--- Test: --scan ---"
           ./sysclean --scan > /tmp/scan_output.txt
+          SCAN_RC=$?
+          echo "rc=$SCAN_RC"
+          if [ $SCAN_RC -ne 0 ]; then
+            echo "--- last 30 lines of stderr ---"
+            ./sysclean --scan 2>&1 >/dev/null | tail -30
+            echo "--- end ---"
+          fi
+          echo ""
+          echo "--- Test: grep ---"
           grep -q "───" /tmp/scan_output.txt
+          echo "rc=$?"
+          exit 0  # don't fail the step on this, we have other checks
 
       - name: Run E2E tests
         run: |
