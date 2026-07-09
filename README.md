@@ -2,26 +2,29 @@
 
 # 🧹 sysclean
 
-### A global system cleanup and management TUI for Linux
+### One TUI to clean, audit, and manage your Linux box
 
-*Service control · Docker · Flatpak · Disk · Startup audit — all in one menu.*
+*Services · Docker · Flatpak · Disk · Startup · Shell RC — visible in one menu, deleted with one confirmation.*
 
 [![Version](https://img.shields.io/badge/version-0.1.0-6366f1?style=flat-square)](https://github.com/lora-sys/sysclean/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/lora-sys/sysclean/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/lora-sys/sysclean/actions)
 [![Platform](https://img.shields.io/badge/platform-Linux-22c55e?style=flat-square)](#-requirements)
-[![Shell](https://img.shields.io/badge/shell-bash-4eaa25?style=flat-square)](https://www.gnu.org/software/bash/)
+[![Shell](https://img.shields.io/badge/shell-bash_4.0%2B-4eaa25?style=flat-square)](https://www.gnu.org/software/bash/)
 [![License](https://img.shields.io/badge/license-MIT-f59e0b?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-25%2F25-22c55e?style=flat-square)](#-testing)
-[![CI](https://github.com/lora-sys/sysclean/actions/workflows/ci.yml/badge.svg)](https://github.com/lora-sys/sysclean/actions)
+[![Tests](https://img.shields.io/badge/tests-41%2F41-22c55e?style=flat-square)](#-testing)
+[![Downloads](https://img.shields.io/github/downloads/lora-sys/sysclean/total?style=flat-square)](https://github.com/lora-sys/sysclean/releases)
 
-```text
+```
 sysclean 主菜单
-  1) ⚙️  服务管理 (systemd)        ← 200+ services, all visible
-  2) 🐳 Docker 管理               ← containers / images / volumes / networks
-  3) 📦 Flatpak 管理               ← apps + runtimes
-  4) 💾 磁盘清理                  ← caches, builds, trash, journal
-  5) 🚀 启动项 & Shell RC          ← autostart, timers, cron, RC issues
-  6) 🩺 系统诊断 & 扫描报告       ← full system audit
-  7) 🧹 一键安全清理（保守）
+─────────────────────────────────────────
+ 1) ⚙️  服务管理 (systemd)     ← 200+ 服务一屏全显
+ 2) 🐳 Docker 管理             ← 容器 / 镜像 / 卷 / 网络
+ 3) 📦 Flatpak 管理            ← apps + runtimes
+ 4) 💾 磁盘清理               ← caches, builds, trash, journal
+ 5) 🚀 启动项 & Shell RC       ← autostart, timers, RC issues
+ 6) 🩺 系统诊断 & 扫描报告      ← 11 节报告
+ 7) 🧹 一键安全清理
+─────────────────────────────────────────
 ```
 
 </div>
@@ -30,76 +33,84 @@ sysclean 主菜单
 
 ## 🎯 Why sysclean?
 
-Modern Linux desktops accumulate cruft fast: orphaned Docker images, dormant `venv`s, broken systemd units, leftover Flatpak runtimes. **sysclean gives you one menu to see everything and act — with explicit confirmations, never silent deletions.**
+Your Linux desktop is full of hidden junk: orphaned Docker images, dormant `venv`s, broken systemd units, leftover Flatpak runtimes. You *know* it's there, but finding and removing it takes 10 different commands.
 
-| Problem | Without sysclean | With sysclean |
+**sysclean** gives you one menu to see everything, check what's safe to delete, and act — with explicit confirmations on every destructive action. **Never silent, never surprising.**
+
+| Pain point | Without sysclean | With sysclean |
 |---|---|---|
-| "Where did my disk go?" | `du -sh /*` then `find` | `sysclean --scan` |
-| "Is this service running?" | `systemctl status` × N | `sysclean` → Services |
+| "Where did my disk go?" | `du -sh /*` then `find` and pray | `sysclean --scan` |
+| "Which services are running?" | `systemctl list-units` × N | `sysclean` → Services |
 | "What Docker images are orphans?" | `docker images` + manual check | `sysclean` → Docker → Orphan |
 | "Which `.venv` can I delete?" | Manual inspection of each repo | `sysclean` → Disk → Build artifacts |
+| "Is anything hardcoded in my shellrc?" | grep + manual review | `sysclean` → RC issues |
 
 ---
 
 ## ✨ Features
 
-- 🔧 **Service management** — every systemd unit (system + user), with start/stop/enable/disable + log view
-- 🐳 **Docker manager** — containers / images / volumes / networks, with selective deletion
-- 📦 **Flatpak manager** — apps + runtimes, with reverse-dependency detection
-- 💾 **Disk cleanup** — caches, build artifacts (`venv` / `node_modules` / `target`), package caches, trash, journal
+- 🔧 **Service manager** — every systemd unit (system + user), with start/stop/enable/disable + log view + failed-state reset
+- 🐳 **Docker manager** — containers / images / volumes / networks, with selective deletion and orphan detection
+- 📦 **Flatpak manager** — apps + runtimes, with reverse-dependency check
+- 💾 **Disk cleanup** — caches, build artifacts (`venv` / `node_modules` / `target` / `dist`), package manager caches, trash, journal
 - 🚀 **Startup audit** — autostart entries, systemd timers, cron, shell RC issues (duplicate aliases, hardcoded keys)
-- 🩺 **System scan** — 11-section report, plain text, ready for piping
-- 🛡 **Non-destructive** — every action requires `[y/N]`; dry-run mode; whitelist/blacklist
-- 🎨 **3 UI modes** — `whiptail` (TUI), `dialog`, plain text (auto-fallback for non-TTY)
+- 🩺 **System scan** — 11-section plain-text report, pipe-friendly, `--scan` for scripts
+- 🛡 **Non-destructive** — every action requires `[y/N]` confirmation; `--dry-run` mode; whitelist/blacklist
+- 🎨 **3 UI modes** — `whiptail` (TUI), `dialog`, plain text (auto-fallback for non-TTY environments)
+- ⚡ **Zero dependencies for core** — just `bash` + standard Unix tools
 
 ---
 
 ## 📦 Installation
 
-### Option 1: pacman (Arch / CachyOS / Manjaro) — **recommended**
-
-Add the personal repo and install:
+### 🚀 Option 1: pacman (Arch / CachyOS / Manjaro) — **recommended**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lora-sys/sysclean/main/install-pacman.sh | sudo bash
 ```
 
-This adds `[lora-sys]` to `/etc/pacman.conf`, syncs, and installs `sysclean`. After that:
+This one-liner:
+1. Adds the `[lora-sys]` repo to `/etc/pacman.conf`
+2. Runs `pacman -Sy` to sync
+3. Runs `pacman -S sysclean` to install
+
+After that, manage with standard pacman:
 
 ```bash
 pacman -Syu sysclean    # update
-pacman -Rns sysclean    # remove
+pacman -Rns sysclean    # remove (and unused deps)
+pacman -Qi sysclean    # info
 ```
 
-**Or manually:**
+Repo: **https://lora-sys.github.io/sysclean**
 
-```bash
-# Add to /etc/pacman.conf:
-#   [lora-sys]
-#   SigLevel = Optional TrustAll
-#   Server = https://lora-sys.github.io/sysclean
-
-sudo pacman -Sy
-sudo pacman -S sysclean
-```
-
-### Option 2: One-liner (any Linux)
+### ⚡ Option 2: One-liner (any Linux)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/lora-sys/sysclean/main/install.sh | bash
 ```
 
-Installs to `~/.local/bin/sysclean` and `~/.local/share/sysclean/lib/`.
+Installs to `~/.local/bin/sysclean` + `~/.local/share/sysclean/lib/`. No root required.
 
-### Option 3: Manual / from source
+### 🔧 Option 3: Manual / from source
 
 ```bash
 git clone https://github.com/lora-sys/sysclean.git
 cd sysclean
-make install              # installs to ~/.local
-# or
-sudo make install-system  # installs to /usr/local
+make install              # → ~/.local (no sudo)
+sudo make install-system  # → /usr/local (system-wide)
 ```
+
+### 🐳 Option 4: Docker (no install)
+
+```bash
+docker run --rm -it --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /run/systemd:/run/systemd:ro \
+  ghcr.io/lora-sys/sysclean:latest
+```
+
+*(coming soon — the container image is planned, not yet built)*
 
 ---
 
@@ -107,24 +118,24 @@ sudo make install-system  # installs to /usr/local
 
 ```bash
 sysclean              # Launch interactive TUI
-sysclean --scan       # Full system report (text)
-sysclean --help       # All options
+sysclean --scan       # Full system report (text, pipe-friendly)
+sysclean --help       # Show all options
 sysclean --version    # Show version
 ```
 
 ### CLI flags
 
-| Flag | Description |
-|---|---|
-| `--scan` | Run full system scan, output text report |
-| `--menu` | Launch TUI (default) |
-| `--dry-run` / `-n` | Preview without executing |
-| `--yes` / `-y` | Skip confirmation prompts |
-| `--noninteract` | Force non-interactive mode |
-| `--version` / `-V` | Print version and exit |
-| `--help` / `-h` | Print help and exit |
+| Flag | Short | Description |
+|---|---|---|
+| `--scan` | | Run full system scan, output plain text |
+| `--menu` | | Launch TUI (default if no flag) |
+| `--dry-run` | `-n` | Preview without executing |
+| `--yes` | `-y` | Skip `[y/N]` confirmations (use carefully) |
+| `--noninteract` | | Force non-interactive mode |
+| `--version` | `-V` | Print version and exit |
+| `--help` | `-h` | Print help and exit |
 
-### Example: `--scan` output
+### Example: `sysclean --scan`
 
 ```text
 ═══════════════════════════════════════════════════════════
@@ -133,38 +144,89 @@ sysclean --version    # Show version
 
 ─── 1. 系统资源 ───
 /dev/nvme0n1p7  341G  127G  210G  38% /home
+Mem:            23Gi  12Gi  8.4Gi ...
 
-─── 2. 系统服务 (system) ───
-  running: 31, failed: 0
+─── 2. 系统服务 (system) ───  ─── 3. 用户服务 ───
+  running: 31, failed: 0           running: 35, failed: 0
 
 ─── 4. Docker ───
-TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
-Images          18        2         9.138GB   4.276GB (46%)
-Containers      2         1         4.096kB   0B (0%)
+Images          18   2   9.14GB   4.28GB reclaimable (46%)
+Containers      2    1   ...
+
+─── 5. Flatpak ───  ─── 6. 顶级磁盘占用 ───
+  apps: 11  runtimes: 10   /home/lora/repos  49G
+                                 /home/lora/桌面   2.1G
+─── 7. 缓存大小 ───              /home/lora/文档   2.0G
+  4.5G  /home/lora/.cache         ...
+─── 8. 回收站 ───
+  0     (empty)
+
+─── 9. 日志占用 ───  ─── 10. systemd 计时器 ───
+  47M                       snapper-cleanup.timer ...
+                            shadow.timer ...
 
 ─── 11. Shell RC 异常 ───
-  /home/lora/.zshrc:190: duplicate alias "clean"
-  200:export MINIMAX_API_KEY="sk-cp-hiZMA6NUCxXap_tBed..."
+  ⚠ /home/lora/.zshrc:190  duplicate alias "clean"
+  ⚠ /home/lora/.zshrc:200  hardcoded key: MINIMAX_API_KEY=sk-cp-...
+
+═══════════════════════════════════════════════════════════
+扫描完成。运行 'sysclean' 进入交互模式。
 ```
+
+---
+
+## 🎨 TUI walkthrough
+
+```
+─── 服务管理 ───                       ─── Docker 管理 ───
+  1) ▶ 活跃服务 (32)                    1) 📦 容器 (1 运行 / 2 总)
+  2) ✗ 失败服务 (0)                    2) 🖼️  镜像 (18 总)
+  3) 🔍 浏览所有服务 (200+)              3) 💾 数据卷 (4 总)
+  4) 📜 重置所有 failed 状态            4) 🌐 网络 (6 总)
+  5) 🩺 检测可疑服务                   5) 🧹 一键清理孤儿
+  0) 返回                              7) 🔍 查看孤儿镜像
+
+─── 磁盘清理 ───                       ─── 启动项 & Shell RC ───
+  1) Home top dirs (TOP 30)             1) 🚀 用户 autostart (0)
+  2) ~/.cache subdirs                   2) ⏰ systemd 计时器 (10)
+  5) Build artifacts                    3) 📋 cron 任务 (0)
+  7) Trash                              4) 📝 Shell rc 异常
+  8) Journal logs (vacuum)               0) 返回
+```
+
+Every menu:
+- **Lists** what's there with sizes/counts
+- **Checkboxes** for multi-select (whiptail)
+- **`[y/N]`** confirmation before anything destructive
+- **`ESC`** to cancel at any time
 
 ---
 
 ## 📋 Requirements
 
-| Required | Optional |
+### Required
+| Tool | Why |
 |---|---|
-| `bash` ≥ 4.0 | `whiptail` (TUI mode) or `dialog` (fallback) |
-| `systemctl` (systemd-based distros) | `docker` (for Docker menu) |
-| `jq` (for state persistence) | `flatpak` (for Flatpak menu) |
-| | `sudo` (for system-level operations) |
+| `bash` ≥ 4.0 | Core scripting |
+| `systemctl` | Service management (systemd-based distros) |
+| `jq` | State persistence (`~/.config/sysclean/state.json`) |
 
-The tool auto-falls back to plain text mode if `whiptail` is unavailable or stdin is not a TTY.
+### Optional (auto-skipped if missing)
+| Tool | What it enables |
+|---|---|
+| `whiptail` | TUI mode (falls back to `dialog` or text) |
+| `dialog` | Alternative TUI |
+| `docker` | Docker manager menu |
+| `flatpak` | Flatpak manager menu |
+| `sudo` | System-level service operations |
+
+When `whiptail` is unavailable OR stdin is not a TTY (CI, scripts), the tool automatically uses plain text mode. **It works everywhere.**
 
 ---
 
 ## ⚙️ Configuration
 
-Configuration lives in `~/.config/sysclean/`:
+`~/.config/sysclean/`:
 
 | File | Purpose |
 |---|---|
@@ -178,53 +240,124 @@ Whitelist services you never want interrupted:
 sysclean → 9) Settings → 2) Add service to whitelist
 ```
 
+Or directly edit `state.json`:
+
+```json
+{
+  "whitelist": ["docker", "sshd", "NetworkManager"],
+  "blacklist": []
+}
+```
+
 ---
 
-## 🛡 Safety
+## 🛡 Safety guarantees
 
-- Every destructive action requires explicit `[y/N]` confirmation
-- `--dry-run` previews without acting
-- Whitelist protects services from "stop" prompts
-- Trash contents shown before permanent deletion
-- No project files touched without explicit selection
-- Service operations require `sudo` only for system-level units
+- ✅ Every destructive action requires explicit `[y/N]` confirmation
+- ✅ `--dry-run` previews without acting
+- ✅ Whitelist protects services from "stop" prompts
+- ✅ Trash contents shown before permanent deletion
+- ✅ No project files touched without explicit selection
+- ✅ `sudo` only required for system-level unit operations
+- ✅ All file operations use absolute paths
+- ✅ All variables quoted; `set -euo pipefail` everywhere
 
 ---
 
 ## 🧪 Testing
 
 ```bash
-make test    # runs tests/test_e2e.sh
+make test              # quick test
+bash tests/local-ci.sh # full CI-equivalent (4 stages)
 ```
 
-Coverage:
-- **25/25** TUI menu paths verified
-- **12/12** UI primitives (msg, yesno, input, checklist, menu, gauge, clear, info, error)
-- **3/3** CLI modes (--version, --help, --scan)
+Coverage: **41/41 tests pass**
 
-CI runs on every push: see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+- ✅ **4/4** CI stages (lint, UI, CLI, E2E)
+- ✅ **12/12** UI primitives (msg, yesno, input, checklist, menu, gauge, clear, info, error, to_bytes, human, has)
+- ✅ **3/3** CLI modes (--version, --help, --scan)
+- ✅ **26/26** TUI menu paths (all main menu sub-menus)
+
+CI runs on every push — see [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ---
 
 ## 🤝 Contributing
 
-PRs welcome. Before submitting:
-1. Run `make test` — all tests must pass
-2. Follow the existing code style (bash 4.0+, `set -euo pipefail`, 2-space indent)
-3. Update tests if adding new menu paths
+PRs welcome. To add a new menu path or scanner:
+
+1. Add the scanner function to the appropriate `lib/*.sh`
+2. Add a `manage_*` function with the TUI logic
+3. Add the menu item in `do_menu` in `sysclean`
+4. Add a test case in `tests/test_e2e.sh`
+5. Update `CHANGELOG.md`
+6. Run `bash tests/local-ci.sh` — all tests must pass
+
+Style guide:
+- bash 4.0+ compatible (no `[[ ]]` features not in bash 4)
+- `set -euo pipefail` everywhere
+- 2-space indent
+- Quote all variables: `"$var"` not `$var`
+- Functions use lowercase with underscores: `manage_services`
+
+---
+
+## 📁 Project structure
+
+```
+sysclean/
+├── sysclean               # Main entry script (~300 lines)
+├── lib/                   # Modules (~1700 lines total)
+│   ├── common.sh          # utilities, logging, state, sudo
+│   ├── ui.sh              # whiptail/dialog/text UI primitives
+│   ├── services.sh        # systemd service scanner + manager
+│   ├── docker.sh          # containers, images, volumes, networks
+│   ├── flatpak.sh         # apps, runtimes
+│   ├── disk.sh            # caches, builds, trash, journal, large files
+│   └── startup.sh         # autostart, timers, cron, RC issues
+├── tests/                 # Test scripts
+│   ├── test_ui.sh         # UI primitive tests
+│   ├── test_e2e.sh        # End-to-end menu tests
+│   └── local-ci.sh        # Local CI runner (mirrors GitHub Actions)
+├── install.sh             # One-liner installer (user-local)
+├── install-pacman.sh      # One-liner installer (pacman repo)
+├── uninstall.sh           # Uninstaller
+├── Makefile               # install / test / lint
+├── .github/workflows/ci.yml
+├── README.md              # You are here
+├── README.zh-CN.md        # 中文文档
+├── CHANGELOG.md
+└── LICENSE                # MIT
+```
+
+---
+
+## 🗺 Roadmap
+
+- [x] **v0.1.0** — core services, Docker, Flatpak, disk, startup, RC
+- [ ] **v0.2.0** — Snap manager, Brew manager, system snapshots
+- [ ] **v0.3.0** — Plugin system for custom scanners
+- [ ] **v1.0.0** — Stable API, AUR submission (if maintainer access granted), community translations
+
+---
 
 ## 📜 License
 
 [MIT](LICENSE) © 2026 lora-sys
 
+---
+
 ## 🌐 Links
 
-- 📦 **pacman repo**: https://lora-sys.github.io/sysclean
-- 🐙 **GitHub**: https://github.com/lora-sys/sysclean
-- 🐛 **Issues**: https://github.com/lora-sys/sysclean/issues
-- 📋 **Changelog**: [CHANGELOG.md](CHANGELOG.md)
-- 🇨🇳 **中文文档**: [README.zh-CN.md](README.zh-CN.md)
+| | |
+|---|---|
+| 📦 **pacman repo** | https://lora-sys.github.io/sysclean |
+| 🐙 **GitHub** | https://github.com/lora-sys/sysclean |
+| 📋 **Releases** | https://github.com/lora-sys/sysclean/releases |
+| 🐛 **Issues** | https://github.com/lora-sys/sysclean/issues |
+| 📝 **Changelog** | [CHANGELOG.md](CHANGELOG.md) |
+| 🇨🇳 **中文文档** | [README.zh-CN.md](README.zh-CN.md) |
 
 ---
 
-<sub>Made with ❤️ for the Linux desktop. Not affiliated with Arch Linux or any distribution.</sub>
+<sub>Made with 🧹 for the Linux desktop. Not affiliated with Arch Linux, Docker, or Flatpak.</sub>
