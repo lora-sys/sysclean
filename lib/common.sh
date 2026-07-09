@@ -37,24 +37,32 @@ die() { log_error "$@"; exit 1; }
 
 # === Sizes ===
 to_bytes() {
-  local s="$1"
-  echo "$s" | awk '{
-    v=$1; u=toupper(substr($2,1,1))
-    if (u=="K") v*=1024
-    else if (u=="M") v*=1024*1024
-    else if (u=="G") v*=1024*1024*1024
-    else if (u=="T") v*=1024*1024*1024*1024
-    printf "%d\n", v
-  }'
+  # Parse "<number><unit>" where unit is K/M/G/T (case-insensitive) or empty
+  local s="$1" num unit
+  if [[ "$s" =~ ^([0-9]+(\.[0-9]+)?)([KMGTkmgt])?$ ]]; then
+    num="${BASH_REMATCH[1]}"
+    unit="${BASH_REMATCH[3]^^}"
+    case "$unit" in
+      K) echo $(( ${num%.*} * 1024 )) ;;
+      M) echo $(( ${num%.*} * 1024 * 1024 )) ;;
+      G) echo $(( ${num%.*} * 1024 * 1024 * 1024 )) ;;
+      T) echo $(( ${num%.*} * 1024 * 1024 * 1024 * 1024 )) ;;
+      "") echo "${num%.*}" ;;
+    esac
+  else
+    echo "0"
+  fi
 }
 
 human() {
+  # Convert bytes to human-readable (B, KB, MB, GB, TB)
   local b="${1:-0}"
   awk -v b="$b" 'BEGIN{
     split("B KB MB GB TB",u," ")
     i=1
     while(b>=1024 && i<5){b/=1024;i++}
-    printf "%.1f %s", b, u[i]
+    if (b == int(b)) printf "%d %s", b, u[i]
+    else printf "%.1f %s", b, u[i]
   }'
 }
 

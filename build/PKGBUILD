@@ -12,8 +12,7 @@ optdepends=(
   'flatpak: Flatpak app management'
   'sudo: system-level operations'
 )
-makedepends=()
-source=("$pkgname-$pkgver.tar.gz::https://github.com/lora-sys/sysclean/archive/refs/tags/v$pkgver.tar.gz")
+source=("sysclean-$pkgver.tar.gz")
 sha256sums=('SKIP')
 
 package() {

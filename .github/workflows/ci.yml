@@ -46,17 +46,4 @@ jobs:
           sudo apt-get install -y python3
           bash tests/test_e2e.sh
 
-  aurlint:
-    name: AUR PKGBUILD lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check PKGBUILD syntax
-        run: |
-          bash -n aur/PKGBUILD
-          echo "✓ PKGBUILD syntax valid"
-      - name: Verify .SRCINFO in sync
-        run: |
-          # Manually verify .SRCINFO matches PKGBUILD
-          test -f aur/.SRCINFO
-          echo "✓ .SRCINFO present"
+  # (AUR removed - now distributing via personal pacman repo)
