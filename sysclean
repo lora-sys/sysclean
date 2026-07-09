@@ -8,16 +8,32 @@ set -euo pipefail
 VERSION="0.1.0"
 
 # === Find lib dir ===
-# Support: installed at ~/.local/share/sysclean/lib OR same dir as script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -d "$HOME/.local/share/sysclean/lib" ]; then
-  SYSCLEAN_LIB="$HOME/.local/share/sysclean/lib"
-elif [ -d "$SCRIPT_DIR/../share/sysclean/lib" ]; then
-  SYSCLEAN_LIB="$SCRIPT_DIR/../share/sysclean/lib"
-elif [ -d "$SCRIPT_DIR/lib" ]; then
-  SYSCLEAN_LIB="$SCRIPT_DIR/lib"
+# Resolve absolute path of this script
+if [ -n "${BASH_SOURCE[0]:-}" ] && [ "${BASH_SOURCE[0]}" != "bash" ] && [ "${BASH_SOURCE[0]}" != "-bash" ]; then
+  SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")"
 else
-  echo "ERROR: cannot find sysclean lib dir" >&2
+  SCRIPT_PATH="$(readlink -f "$0" 2>/dev/null || echo "$0")"
+fi
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+
+# Search for lib in order of preference
+SYSCLEAN_LIB=""
+for candidate in \
+    "$HOME/.local/share/sysclean/lib" \
+    "/usr/local/share/sysclean/lib" \
+    "/usr/share/sysclean/lib" \
+    "$SCRIPT_DIR/../share/sysclean/lib" \
+    "$SCRIPT_DIR/lib" \
+    "$(dirname "$SCRIPT_PATH")/../lib"; do
+  if [ -d "$candidate" ] && [ -f "$candidate/common.sh" ]; then
+    SYSCLEAN_LIB="$candidate"
+    break
+  fi
+done
+
+if [ -z "$SYSCLEAN_LIB" ]; then
+  echo "ERROR: cannot find sysclean lib dir (looked in standard locations)" >&2
+  echo "  Script location: $SCRIPT_DIR" >&2
   exit 1
 fi
 
