@@ -47,7 +47,7 @@ fi
 # === Source libs ===
 for f in common ui services docker flatpak disk startup; do
   if [ -f "$SYSCLEAN_LIB/$f.sh" ]; then
-    : # file exists, will source below
+    source "$SYSCLEAN_LIB/$f.sh"
   else
     echo "ERROR: missing $f.sh (looking in: $SYSCLEAN_LIB)" >&2
     echo "  Script location: $SCRIPT_DIR" >&2
