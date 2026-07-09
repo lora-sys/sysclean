@@ -273,21 +273,12 @@ bash tests/local-ci.sh # 完整 CI 等价（4 阶段）
 
 ## 🤝 贡献
 
-欢迎 PR。加新菜单路径或扫描器：
-
-1. 在对应 `lib/*.sh` 加 scanner 函数
-2. 加 `manage_*` 函数写 TUI 逻辑
-3. 在 `do_menu` 加菜单项（`sysclean` 脚本里）
-4. 在 `tests/test_e2e.sh` 加测试
-5. 更新 `CHANGELOG.md`
-6. 跑 `bash tests/local-ci.sh` — 所有测试必须过
-
-代码风格：
-- bash 4.0+ 兼容（别用 bash 5 的 `[[ ]]` 特性）
-- 处处 `set -euo pipefail`
-- 2 空格缩进
-- 所有变量加引号：`"$var"` 不用 `$var`
-- 函数用小写下划线：`manage_services`
+欢迎 PR！详见 **[CONTRIBUTING.md](CONTRIBUTING.md)**：
+- 开发环境搭建
+- 如何加新菜单路径（5 步流程）
+- 代码风格（bash 4.0+、2 空格缩进、变量加引号等）
+- 如何写测试
+- Bug 报告 / 功能请求模板
 
 ---
 

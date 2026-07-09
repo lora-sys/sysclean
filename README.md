@@ -284,21 +284,12 @@ CI runs on every push — see [`.github/workflows/ci.yml`](.github/workflows/ci.
 
 ## 🤝 Contributing
 
-PRs welcome. To add a new menu path or scanner:
-
-1. Add the scanner function to the appropriate `lib/*.sh`
-2. Add a `manage_*` function with the TUI logic
-3. Add the menu item in `do_menu` in `sysclean`
-4. Add a test case in `tests/test_e2e.sh`
-5. Update `CHANGELOG.md`
-6. Run `bash tests/local-ci.sh` — all tests must pass
-
-Style guide:
-- bash 4.0+ compatible (no `[[ ]]` features not in bash 4)
-- `set -euo pipefail` everywhere
-- 2-space indent
-- Quote all variables: `"$var"` not `$var`
-- Functions use lowercase with underscores: `manage_services`
+PRs welcome! See **[CONTRIBUTING.md](CONTRIBUTING.md)** for:
+- Development setup
+- How to add a new menu path (5-step process)
+- Code style (bash 4.0+, 2-space indent, quoted vars, etc.)
+- How to write tests
+- Bug report / feature request templates
 
 ---
 

@@ -19,9 +19,11 @@ All notable changes to sysclean are documented here. The format follows [Keep a 
 - Dry-run mode (`--dry-run`)
 - Skip-confirmation mode (`--yes`)
 - Bilingual docs (English + Chinese)
-- AUR package (PKGBUILD)
-- One-liner install script
-- GitHub Actions CI
+- Personal pacman repo at `https://lora-sys.github.io/sysclean`
+- AUR-style PKGBUILD in repo (for reference, not published)
+- One-liner install scripts (user-local + pacman)
+- GitHub Pages for hosting the pacman repo
+- GitHub Actions CI with 4-stage test pipeline
 
 ### Fixed
 - `set -e` killing script on failed `crontab -l` (added `|| var=0` defaults)
@@ -29,6 +31,11 @@ All notable changes to sysclean are documented here. The format follows [Keep a 
 - TTY detection for whiptail fallback to plain text
 - `2>/dev/null` redirection swallowing whiptail output
 - Double-newline in menu items from `|| echo 0` patterns
+- `to_bytes` and `human` functions (CI was failing on `to_bytes 1M`)
+- `lib/common.sh` overwriting `SYSCLEAN_LIB` from main script
+- Hardcoded `/home/lora/*` paths (broken for any other user)
+- `du` commands in `disk.sh` tripping `set -e + pipefail` on missing dirs
+- `do_scan` trash section crashing on missing Trash directory
 
 ### Security
 - Every destructive action requires explicit `[y/N]` confirmation
